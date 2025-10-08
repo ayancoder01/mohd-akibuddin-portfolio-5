@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohd Akibuddin - Ruby on Rails Developer Portfolio</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for dark overlay and smooth transitions */
+        :root {
+            /* Default Theme: Amber/Orange */
+            --primary-color: #f7a94d;
+        }
+
+        .text-primary {
+            color: var(--primary-color);
+        }
+
+        .bg-primary {
+            background-color: var(--primary-color);
+        }
+
+        .border-primary {
+            border-color: var(--primary-color);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212;
+            /* Dark background */
+            color: #d1d5db;
+            /* Light gray text */
+            cursor: none;
+            /* Hide default cursor */
+        }
+
+        /* --- PRELOADER ANIMATION --- */
+        /* Preloader Text Animation */
+        .loader-char {
+            opacity: 0;
+            display: inline-block;
+            animation: bounce 0.8s infinite alternate;
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-15px) scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+
+        /* --- MAGNETIC LINK EFFECT (Wrapper for magnetic behavior) --- */
+        .magnetic-link-wrapper {
+            /* This element moves to follow the cursor */
+            transition: transform 0.1s cubic-bezier(0.23, 1, 0.32, 1);
+            display: inline-block;
+        }
+
+        /* --- VISUAL LINK (The actual circle with the border) --- */
+        .magnetic-link {
+            /* This element is the visual target */
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 44px;
+            /* Fixed size for the circular area */
+            height: 44px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* Subtle white border default */
+            border-radius: 50%;
+            /* Make it a circle */
+            text-decoration: none;
+            transition: border-color 0.3s, color 0.3s;
+            font-size: 1.25rem;
+            /* Icon size */
+        }
+
+        .magnetic-link:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* --- CUSTOM CURSOR STYLES --- */
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            /* Crucial: ensures clicks pass through */
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+            z-index: 9998;
+            mix-blend-mode: difference;
+            /* Cool color effect on light/dark elements */
+        }
+
+        /* Hover effect for interactive elements */
+        .custom-cursor.active {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            opacity: 0.2;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Overlay for project images to mimic hover effect */
+        .project-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem;
+        }
+
+        .project-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-item:hover .project-overlay {
+            opacity: 1;
+        }
+
+        /* Smooth scroll margin for fixed header */
+        section {
+            scroll-margin-top: 5rem;
+            /* Space for the fixed header */
+        }
+
+        /* Customize scrollbar for a dark theme (optional but professional) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        /* Navbar Hover Animation */
+        .nav-link {
+            position: relative;
+            padding-bottom: 2px;
+            display: inline-block;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            /* Uses the dynamic primary color variable */
+            background-color: var(--primary-color);
+            transition: width 0.3s ease-in-out;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body class="antialiased">
+
+    <!-- 1. PRE-LOADER SCREEN -->
+    <div id="preloader"
+        class="fixed inset-0 z-[9999] bg-black flex items-center justify-center transition-opacity duration-1000">
+        <div id="loader-text" class="text-5xl sm:text-6xl font-black text-white tracking-widest">
+            <!-- Text injected by JS for animation -->
+        </div>
+    </div>
+
+    <!-- 2. MAIN PORTFOLIO CONTENT WRAPPER (Initially hidden, Fades in) -->
+    <div id="portfolio-content" class="opacity-0 transition-opacity duration-1000">
+
+        <!-- Navbar/Header (Fixed Top) -->
+        <header
+            class="fixed top-0 left-0 right-0 z-50 bg-black/90 shadow-lg backdrop-blur-sm transition-all duration-300"
+            id="navbar">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <!-- Logo/Brand -->
+                <a href="#home" class="text-3xl font-extrabold text-white tracking-wider">
+                    MOHD<span class="text-primary">AKIB</span>
+                </a>
+
+                <!-- Wrapper for Theme Select and Nav -->
+                <div class="flex items-center space-x-8">
+
+                    <!-- Theme Select (Desktop and Tablet) -->
+                    <div class="hidden md:block">
+                        <select id="desktop-theme-select"
+                            class="p-2 text-sm rounded-lg bg-gray-800 border border-gray-700 text-gray-300 focus:border-primary focus:ring-primary outline-none cursor-pointer">
+                            <option value="#f7a94d" class="bg-gray-800">Amber Accent</option>
+                            <option value="#3b82f6" class="bg-gray-800">Blue Accent</option>
+                            <option value="#10b981" class="bg-gray-800">Green Accent</option>
+                        </select>
+                    </div>
+
+                    <!-- Desktop Navigation -->
+                    <nav class="hidden md:flex space-x-8">
+                        <!-- Added nav-link class for animated underline -->
+                        <a href="#home"
+                            class="nav-link text-gray-300 hover:text-primary transition duration-200 uppercase text-sm font-medium">Home</a>
+                        <a href="#about"
+                            class="nav-link text-gray-300 hover:text-primary transition duration-200 uppercase text-sm font-medium">About</a>
+                        <a href="#services"
+                            class="nav-link text-gray-300 hover:text-primary transition duration-200 uppercase text-sm font-medium">Expertise</a>
+                        <a href="#portfolio"
+                            class="nav-link text-gray-300 hover:text-primary transition duration-200 uppercase text-sm font-medium">Projects</a>
+                        <a href="#contact"
+                            class="nav-link text-gray-300 hover:text-primary transition duration-200 uppercase text-sm font-medium">Contact</a>
+                    </nav>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Menu (Hidden by default) -->
+            <div id="mobile-menu" class="hidden md:hidden bg-black/95">
+                <nav class="flex flex-col space-y-2 p-4">
+                    <!-- Added nav-link class for animated underline -->
+                    <a href="#home"
+                        class="nav-link text-gray-300 hover:text-primary p-2 uppercase text-sm font-medium transition duration-200">Home</a>
+                    <a href="#about"
+                        class="nav-link text-gray-300 hover:text-primary p-2 uppercase text-sm font-medium transition duration-200">About</a>
+                    <a href="#services"
+                        class="nav-link text-gray-300 hover:text-primary p-2 uppercase text-sm font-medium transition duration-200">Expertise</a>
+                    <a href="#portfolio"
+                        class="nav-link text-gray-300 hover:text-primary p-2 uppercase text-sm font-medium transition duration-200">Projects</a>
+                    <a href="#contact"
+                        class="nav-link text-gray-300 hover:text-primary p-2 uppercase text-sm font-medium transition duration-200">Contact</a>
+                </nav>
+
+                <!-- Mobile Theme Selector -->
+                <div class="p-4 border-t border-gray-700">
+                    <label for="mobile-theme-select"
+                        class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Accent
+                        Color</label>
+                    <select id="mobile-theme-select"
+                        class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:border-primary focus:ring-primary outline-none cursor-pointer">
+                        <option value="#f7a94d" class="bg-gray-800">Amber (Default)</option>
+                        <option value="#3b82f6" class="bg-gray-800">Blue</option>
+                        <option value="#10b981" class="bg-gray-800">Green</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Hero Section - Updated for Developer Profile -->
+            <section id="home"
+                class="relative min-h-screen flex items-center justify-center pt-24 pb-12 bg-cover bg-center"
+                style="background-image: url('https://placehold.co/1920x1080/000000/F7A94D?text=Developer+Code+Background');">
+                <!-- Overlay to darken the image for text readability -->
+                <div class="absolute inset-0 bg-black/70"></div>
+
+                <div class="relative text-center max-w-4xl mx-auto p-4 z-10">
+                    <p
+                        class="text-primary text-lg sm:text-xl font-semibold mb-4 uppercase tracking-widest animate-pulse">
+                        3 Years of Backend Experience</p>
+                    <h1 class="text-5xl sm:text-7xl lg:text-8xl font-black text-white leading-tight mb-8">
+                        I'M <span class="text-primary">MOHD AKIBUDDIN</span>
+                    </h1>
+                    <p class="text-gray-300 text-base sm:text-xl mb-12 max-w-2xl mx-auto">
+                        A passionate Backend Developer specializing in **Ruby on Rails**, **MySQL**, and building
+                        scalable, secure backend systems for **e-commerce** and **event management** platforms.
+                    </p>
+                    <a href="#portfolio"
+                        class="inline-block px-8 py-3 bg-primary text-gray-900 font-bold uppercase tracking-wider rounded-full hover:bg-white transition duration-300 shadow-xl transform hover:scale-105">
+                        View My Projects
+                    </a>
+                </div>
+            </section>
+
+            <!-- About Section - Updated with CV Details -->
+            <section id="about" class="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <span class="text-primary font-bold uppercase text-sm tracking-widest">About Me</span>
+                    <h2 class="text-4xl font-bold text-white mt-2">Professional Summary & Experience</h2>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <!-- Image Column -->
+                    <div class="rounded-xl overflow-hidden shadow-2xl">
+                        <img src="https://placehold.co/600x400/222222/f7a94d?text=Developer+Profile"
+                            alt="Mohd Akibuddin Profile"
+                            class="w-full h-auto object-cover transform hover:scale-105 transition duration-500 rounded-lg">
+                    </div>
+
+                    <!-- Text Column -->
+                    <div>
+                        <h3 class="text-3xl font-bold text-white mb-4">Ruby on Rails Developer</h3>
+                        <p class="text-gray-400 mb-6 leading-relaxed">
+                            I am a **Backend Developer** with **3 years of experience** building scalable web
+                            applications using **Ruby on Rails, MySQL, and APIs** like Twilio and Stripe. I am skilled
+                            in developing secure, efficient backend systems for high-traffic event management and
+                            e-commerce platforms. My focus is on **optimising user experiences** and delivering
+                            measurable business impact through efficient architecture (RESTful, MVC, Service Objects)
+                            and comprehensive testing (RSpec).
+                        </p>
+                        <div class="space-y-3 mb-8">
+                            <p class="text-white"><span
+                                    class="font-semibold text-primary w-24 inline-block">Name:</span> Mohd Akibuddin</p>
+                            <p class="text-white"><span
+                                    class="font-semibold text-primary w-24 inline-block">Email:</span>
+                                akeebudeen786@gmail.com</p>
+                            <p class="text-white"><span
+                                    class="font-semibold text-primary w-24 inline-block">Location:</span> Noida, India
+                            </p>
+                        </div>
+                        <a href="https://linkedin.com/in/mohd-akibuddin-43624824b" target="_blank"
+                            class="inline-block px-6 py-3 border border-primary text-primary font-bold uppercase text-sm rounded-full hover:bg-primary hover:text-gray-900 transition duration-300 transform hover:shadow-lg">
+                            View LinkedIn
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Section - Updated with Technical Skills/Expertise -->
+            <section id="services" class="py-16 sm:py-24 bg-[#1e1e1e]">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <span class="text-primary font-bold uppercase text-sm tracking-widest">My Stack</span>
+                        <h2 class="text-4xl font-bold text-white mt-2">Technical Expertise</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                        <!-- Service Card 1: Ruby on Rails -->
+                        <div
+                            class="p-8 bg-gray-800 rounded-xl shadow-xl hover:shadow-primary/50 transition duration-300 transform hover:-translate-y-1">
+                            <div class="text-primary mb-4">
+                                <i class="fas fa-code text-4xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Ruby on Rails Development</h3>
+                            <p class="text-gray-400">3 years of experience building scalable backend systems using Ruby,
+                                Rails, and MVC architecture.</p>
+                        </div>
+
+                        <!-- Service Card 2: RESTful APIs -->
+                        <div
+                            class="p-8 bg-gray-800 rounded-xl shadow-xl hover:shadow-primary/50 transition duration-300 transform hover:-translate-y-1">
+                            <div class="text-primary mb-4">
+                                <i class="fas fa-link text-4xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">RESTful API Design</h3>
+                            <p class="text-gray-400">Expertise in crafting robust, high-availability JSON APIs for web
+                                and mobile frontends (99.9% uptime).</p>
+                        </div>
+
+                        <!-- Service Card 3: Databases & Optimization -->
+                        <div
+                            class="p-8 bg-gray-800 rounded-xl shadow-xl hover:shadow-primary/50 transition duration-300 transform hover:-translate-y-1">
+                            <div class="text-primary mb-4">
+                                <i class="fas fa-database text-4xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">SQL/NoSQL Databases</h3>
+                            <p class="text-gray-400">Proficiency in MySQL, PostgreSQL, and Redis, with focus on query
+                                optimization (eager loading, indexing).</p>
+                        </div>
+
+                        <!-- Service Card 4: Testing & Debugging -->
+                        <div
+                            class="p-8 bg-gray-800 rounded-xl shadow-xl hover:shadow-primary/50 transition duration-300 transform hover:-translate-y-1">
+                            <div class="text-primary mb-4">
+                                <i class="fas fa-bug text-4xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">TDD & RSpec Testing</h3>
+                            <p class="text-gray-400">Commitment to TDD workflows, achieving high test coverage (90%+)
+                                using RSpec for critical features.</p>
+                        </div>
+
+                        <!-- Service Card 5: Third-Party Integrations -->
+                        <div
+                            class="p-8 bg-gray-800 rounded-xl shadow-xl hover:shadow-primary/50 transition duration-300 transform hover:-translate-y-1">
+                            <div class="text-primary mb-4">
+                                <i class="fas fa-plug text-4xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Third-Party APIs</h3>
+                            <p class="text-gray-400">Experience integrating payment (Stripe) and communication (Twilio,
+                                WhatsApp Business, Termii) APIs.</p>
+                        </div>
+
+                        <!-- Service Card 6: Asynchronous Processing -->
+                        <div
+                            class="p-8 bg-gray-800 rounded-xl shadow-xl hover:shadow-primary/50 transition duration-300 transform hover:-translate-y-1">
+                            <div class="text-primary mb-4">
+                                <i class="fas fa-sync-alt text-4xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Sidekiq & ActionCable</h3>
+                            <p class="text-gray-400">Implementation of Sidekiq for background jobs (notifications) and
+                                ActionCable for real-time updates.</p>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Portfolio/Projects Section - Updated with CV Projects -->
+            <section id="portfolio" class="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <span class="text-primary font-bold uppercase text-sm tracking-widest">Case Studies</span>
+                    <h2 class="text-4xl font-bold text-white mt-2">Key Backend Projects</h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8">
+
+                    <!-- Project Item 1: Join Talent e-Learn -->
+                    <div class="project-item rounded-lg shadow-xl cursor-pointer">
+                        <img src="https://placehold.co/600x400/333333/F7A94D?text=E-Learn+Platform"
+                            alt="Educational Platform Project" class="w-full h-64 object-cover rounded-lg">
+                        <div class="project-overlay rounded-lg p-4 text-center">
+                            <span class="text-white text-xl font-semibold uppercase tracking-wider mb-2">Join Talent
+                                e-Learn</span>
+                            <p class="text-gray-300 text-sm">Educational Platform (Rails, MySQL, ActiveAdmin)</p>
+                        </div>
+                    </div>
+
+                    <!-- Project Item 2: In It Together -->
+                    <div class="project-item rounded-lg shadow-xl cursor-pointer">
+                        <img src="https://placehold.co/600x400/333333/F7A94D?text=Event+Mgmt"
+                            alt="Event Management Platform" class="w-full h-64 object-cover rounded-lg">
+                        <div class="project-overlay rounded-lg p-4 text-center">
+                            <span class="text-white text-xl font-semibold uppercase tracking-wider mb-2">In It
+                                Together</span>
+                            <p class="text-gray-300 text-sm">Event Management (Rails, MySQL, Stripe, ActionCable)</p>
+                        </div>
+                    </div>
+
+                    <!-- Project Item 3: Allya -->
+                    <div class="project-item rounded-lg shadow-xl cursor-pointer">
+                        <img src="https://placehold.co/600x400/333333/F7A94D?text=Vehicle+Rental"
+                            alt="Construction Vehicle Rental" class="w-full h-64 object-cover rounded-lg">
+                        <div class="project-overlay rounded-lg p-4 text-center">
+                            <span class="text-white text-xl font-semibold uppercase tracking-wider mb-2">Allya</span>
+                            <p class="text-gray-300 text-sm">Vehicle Rental (Rails, ActiveAdmin, Twilio, ActionCable)
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Project Item 4: Avinash Motorcycle -->
+                    <div class="project-item rounded-lg shadow-xl cursor-pointer">
+                        <img src="https://placehold.co/600x400/333333/F7A94D?text=E-Commerce" alt="E-Commerce Platform"
+                            class="w-full h-64 object-cover rounded-lg">
+                        <div class="project-overlay rounded-lg p-4 text-center">
+                            <span class="text-white text-xl font-semibold uppercase tracking-wider mb-2">Avinash
+                                Motorcycle</span>
+                            <p class="text-gray-300 text-sm">E-Commerce (Rails, MySQL, WhatsApp API, ActiveAdmin)</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Link to detailed CV or more projects -->
+                <div class="text-center mt-12">
+                    <a href="#contact"
+                        class="inline-block px-8 py-3 bg-gray-800 text-primary font-bold uppercase tracking-wider rounded-full border border-primary hover:bg-primary hover:text-gray-900 transition duration-300 shadow-xl transform hover:scale-[1.02]">
+                        View Detailed Experience
+                    </a>
+                </div>
+            </section>
+
+            <!-- Contact Section - Updated with CV Contact Details -->
+            <section id="contact" class="py-16 sm:py-24 bg-[#1e1e1e]">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <span class="text-primary font-bold uppercase text-sm tracking-widest">Get in touch</span>
+                        <h2 class="text-4xl font-bold text-white mt-2">Connect with Mohd Akibuddin</h2>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-12">
+                        <!-- Contact Info Column -->
+                        <div class="md:col-span-1 space-y-8">
+                            <div class="flex items-start space-x-4">
+                                <i class="fas fa-map-marker-alt text-primary text-2xl mt-1"></i>
+                                <div>
+                                    <h4 class="text-xl font-semibold text-white">Location</h4>
+                                    <p class="text-gray-400">Noida Sector 63, India</p>
+                                    <p class="text-gray-400">Timezone: UTC+5:30</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-4">
+                                <i class="fas fa-phone-alt text-primary text-2xl mt-1"></i>
+                                <div>
+                                    <h4 class="text-xl font-semibold text-white">Phone</h4>
+                                    <p class="text-gray-400">+91 9012626767</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-4">
+                                <i class="fas fa-envelope text-primary text-2xl mt-1"></i>
+                                <div>
+                                    <h4 class="text-xl font-semibold text-white">Email</h4>
+                                    <p class="text-gray-400">akeebudeen786@gmail.com</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Form Column -->
+                        <div class="md:col-span-2">
+                            <form id="contact-form" class="space-y-6 bg-gray-800 p-8 rounded-xl shadow-2xl">
+                                <div class="grid sm:grid-cols-2 gap-6">
+                                    <input type="text" placeholder="Your Name" required
+                                        class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-primary focus:ring-primary outline-none transition duration-200">
+                                    <input type="email" placeholder="Your Email" required
+                                        class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-primary focus:ring-primary outline-none transition duration-200">
+                                </div>
+                                <div>
+                                    <input type="text" placeholder="Subject" required
+                                        class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-primary focus:ring-primary outline-none transition duration-200">
+                                </div>
+                                <div>
+                                    <textarea placeholder="Your Message" rows="5" required
+                                        class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-primary focus:ring-primary outline-none transition duration-200"></textarea>
+                                </div>
+                                <button type="submit"
+                                    class="w-full sm:w-auto px-8 py-3 bg-primary text-gray-900 font-bold uppercase tracking-wider rounded-full hover:bg-white transition duration-300 transform hover:scale-[1.02] shadow-xl">
+                                    Send Message
+                                </button>
+                                <!-- Message Box for feedback (instead of alert) -->
+                                <div id="form-message"
+                                    class="mt-4 p-3 rounded-lg text-center hidden transition duration-300"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-black py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+
+                <!-- Social Media Icons (MAGNETIC LINKS APPLIED HERE) -->
+                <div class="flex justify-center space-x-6 mb-8">
+                    <!-- Link 1: LinkedIn -->
+                    <div class="magnetic-link-wrapper">
+                        <a href="https://linkedin.com/in/mohd-akibuddin-43624824b" target="_blank"
+                            class="magnetic-link text-gray-400 hover:text-primary transition duration-200"
+                            aria-label="LinkedIn Profile">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                    <!-- Link 2: Twitter -->
+                    <div class="magnetic-link-wrapper">
+                        <a href="#" class="magnetic-link text-gray-400 hover:text-primary transition duration-200"
+                            aria-label="Twitter Profile">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                    <!-- Link 3: GitHub -->
+                    <div class="magnetic-link-wrapper">
+                        <a href="#" class="magnetic-link text-gray-400 hover:text-primary transition duration-200"
+                            aria-label="GitHub Profile">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <p class="text-gray-500 text-sm">
+                    &copy; <span id="current-year"></span> Mohd Akibuddin Developer Portfolio. Design inspired by
+                    Videograph.
+                </p>
+            </div>
+        </footer>
+    </div> <!-- End of #portfolio-content -->
+
+    <!-- JavaScript for all functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navLinks = mobileMenu.querySelectorAll('a');
+            const contactForm = document.getElementById('contact-form');
+            const formMessage = document.getElementById('form-message');
+            const currentYearSpan = document.getElementById('current-year');
+            const desktopThemeSelect = document.getElementById('desktop-theme-select');
+            const mobileThemeSelect = document.getElementById('mobile-theme-select');
+            const root = document.documentElement;
+
+            // Preloader elements
+            const preloader = document.getElementById('preloader');
+            const portfolioContent = document.getElementById('portfolio-content');
+            const loaderTextContainer = document.getElementById('loader-text');
+            const name = "MOHDAKIB";
+            const delay = 3500; // 3.5 seconds total duration for preloader
+
+            // Set current year in footer
+            currentYearSpan.textContent = new Date().getFullYear();
+
+            // --- Preloader Logic ---
+
+            // 1. Populate text and set staggered animation
+            name.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.classList.add('loader-char');
+                // Staggered delay for animation effect
+                span.style.animationDelay = `${index * 0.1}s`;
+                loaderTextContainer.appendChild(span);
+            });
+
+            // 2. Hide preloader and show portfolio content
+            setTimeout(() => {
+                // Fade out preloader
+                preloader.style.opacity = 0;
+
+                setTimeout(() => {
+                    preloader.classList.add('hidden');
+                    // Fade in portfolio content
+                    portfolioContent.classList.remove('opacity-0');
+                    portfolioContent.classList.add('opacity-100');
+                }, 1000); // Wait 1 second for the fade-out transition to complete
+            }, delay);
+
+
+            // --- Custom Cursor Logic ---
+            const cursor = document.createElement('div');
+            cursor.classList.add('custom-cursor');
+            document.body.appendChild(cursor);
+
+            document.addEventListener('mousemove', (e) => {
+                // Directly set position for custom cursor
+                cursor.style.left = `${e.clientX}px`;
+                cursor.style.top = `${e.clientY}px`;
+            });
+
+            // Detect interactive elements to activate cursor hover state
+            const interactiveElements = 'a, button, input, textarea, .project-item, select';
+
+            document.querySelectorAll(interactiveElements).forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+            });
+
+
+
+            // --- Magnetic Link Effect Logic ---
+            // Changed selector to target the wrapper element
+            const magneticLinks = document.querySelectorAll('.magnetic-link-wrapper');
+            const magneticProximity = 80; // Distance in pixels to activate the effect
+            const magneticStrength = 0.35; // Multiplier for translation (0.1 is subtle, 1.0 is direct follow)
+
+            document.addEventListener('mousemove', (e) => {
+                magneticLinks.forEach(link => {
+                    // Use getBoundingClientRect() to find the position of the element
+                    const rect = link.getBoundingClientRect();
+
+                    // Calculate center point of the link
+                    const linkCenterX = rect.left + rect.width / 2;
+                    const linkCenterY = rect.top + rect.height / 2;
+
+                    // Calculate distance from cursor to link center
+                    const distanceX = e.clientX - linkCenterX;
+                    const distanceY = e.clientY - linkCenterY;
+
+                    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+                    if (distance < magneticProximity) {
+                        // Element follows cursor. Clamping is handled implicitly by magneticStrength
+                        const translateX = distanceX * magneticStrength;
+                        const translateY = distanceY * magneticStrength;
+
+                        link.style.transform = `translate(${translateX}px, ${translateY}px)`;
+                    } else {
+                        // Reset to original position
+                        link.style.transform = `translate(0px, 0px)`;
+                    }
+                });
+            });
+
+
+            // --- Theme Switching Logic ---
+            const setTheme = (color, sourceSelect) => {
+                root.style.setProperty('--primary-color', color);
+
+                // Synchronize the other dropdown value
+                if (desktopThemeSelect && sourceSelect !== desktopThemeSelect && desktopThemeSelect.value !== color) {
+                    desktopThemeSelect.value = color;
+                }
+                if (mobileThemeSelect && sourceSelect !== mobileThemeSelect && mobileThemeSelect.value !== color) {
+                    mobileThemeSelect.value = color;
+                }
+            };
+
+            // Listener for desktop dropdown
+            if (desktopThemeSelect) {
+                desktopThemeSelect.addEventListener('change', (e) => {
+                    setTheme(e.target.value, desktopThemeSelect);
+                });
+            }
+
+            // Listener for mobile dropdown
+            if (mobileThemeSelect) {
+                mobileThemeSelect.addEventListener('change', (e) => {
+                    setTheme(e.target.value, mobileThemeSelect);
+                });
+            }
+
+            // Set initial theme sync
+            const initialColor = root.style.getPropertyValue('--primary-color') || '#f7a94d';
+            setTheme(initialColor, null);
+
+
+            // --- Mobile Menu Toggle & Navigation ---
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                const icon = mobileMenuButton.querySelector('i');
+                if (mobileMenu.classList.contains('hidden')) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                } else {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                }
+            });
+
+            // Close mobile menu on link click (for smooth scrolling)
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenuButton.querySelector('i').classList.remove('fa-times');
+                    mobileMenuButton.querySelector('i').classList.add('fa-bars');
+                });
+            });
+
+            // --- Contact Form Submission (Mock) ---
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                // Show loading state (optional)
+                contactForm.querySelector('button').textContent = 'Sending...';
+
+                setTimeout(() => {
+                    // Reset button text
+                    contactForm.querySelector('button').textContent = 'Send Message';
+
+                    // Show success message
+                    formMessage.classList.remove('hidden', 'bg-red-500/20', 'text-red-300');
+                    formMessage.classList.add('bg-green-500/20', 'text-green-300');
+                    formMessage.textContent = 'Thank you! Your message has been sent successfully.';
+
+                    // Clear the form
+                    contactForm.reset();
+
+                    // Hide message after 5 seconds
+                    setTimeout(() => {
+                        formMessage.classList.add('hidden');
+                    }, 5000);
+                }, 1500); // Simulate network delay
+            });
+
+            // --- Sticky Header Styling ---
+            window.addEventListener('scroll', () => {
+                const navbar = document.getElementById('navbar');
+                if (window.scrollY > 50) {
+                    navbar.classList.add('py-3');
+                    navbar.classList.remove('py-4');
+                } else {
+                    navbar.classList.remove('py-3');
+                    navbar.classList.add('py-4');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
